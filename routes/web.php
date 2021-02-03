@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UrlController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/urls', [UrlController::class, 'index'])->name('urls');
+Route::get('/urls/{url}', [UrlController::class, 'show'])->name('urls.show');
+Route::post('/urls', [UrlController::class, 'store'])->name('urls.store');
