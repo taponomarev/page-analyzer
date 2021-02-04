@@ -6,8 +6,7 @@ setup:
 	cp -n .env.example .env|| true
 	php artisan key:gen --ansi
 	touch database/database.sqlite
-	php artisan migrate
-	php artisan db:seed
+	php artisan migrate --seed
 	npm install
 
 watch:
