@@ -9,9 +9,12 @@ class UrlControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * @var bool
+     */
     protected $seed = true;
 
-    public function testIndex()
+    public function testIndex(): void
     {
         $response = $this->get(route('urls'));
         $response->assertOk();
@@ -19,13 +22,19 @@ class UrlControllerTest extends TestCase
         $response->assertSeeText('https://yandex.ru');
     }
 
-    public function testShow()
+    /**
+     * @return void
+     */
+    public function testShow(): void
     {
         $response = $this->get(route('urls.show', 1));
         $response->assertOk();
     }
 
-    public function testStore()
+    /**
+     * @return void
+     */
+    public function testStore(): void
     {
         $url = 'https://hexlet.io';
         $requestData = [

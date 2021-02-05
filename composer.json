@@ -22,6 +22,7 @@
         "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.2",
         "nunomaduro/collision": "^5.0",
+        "phpstan/phpstan": "^0.12.58",
         "phpunit/phpunit": "^9.3.3",
         "squizlabs/php_codesniffer": "^3.5"
     },
@@ -61,6 +62,7 @@
             "@php artisan key:generate --ansi"
         ],
         "phpcs": "phpcs -- --standard=PSR12 app tests",
-        "phpcbf": "phpcbf"
+        "phpcbf": "phpcbf",
+        "phpstan-src": "phpstan analyse -l 8 app tests"
     }
 }
