@@ -15,8 +15,8 @@ class UrlControllerTest extends TestCase
     {
         $response = $this->get(route('urls'));
         $response->assertOk();
-        $this->assertDatabaseHas('urls', ['name' => 'https://google.com']);
-        $this->assertDatabaseHas('urls', ['name' => 'https://yandex.ru']);
+        $response->assertSeeText('https://google.com');
+        $response->assertSeeText('https://yandex.ru');
     }
 
     public function testShow()
