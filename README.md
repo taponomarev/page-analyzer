@@ -4,6 +4,7 @@
 Page analyzer - a site that analyzes the specified pages for SEO suitability by analogy with [varvy](https://varvy.com/pagespeed/)
 
 [![Actions Status](https://github.com/taponomarev/php-project-lvl3/workflows/hexlet-check/badge.svg)](https://github.com/taponomarev/php-project-lvl3/actions)
+[![Tests Status](https://github.com/taponomarev/php-project-lvl3/workflows/Tests/badge.svg)](https://github.com/taponomarev/php-project-lvl3/actions)
 [![Build Status](https://github.com/taponomarev/php-project-lvl3/workflows/Build/badge.svg)](https://github.com/taponomarev/php-project-lvl3/actions)
 
 ## Requirements
