@@ -24,7 +24,7 @@ class UrlCheckController extends Controller
             'updated_at' => $nowDate
         ]);
 
-        flash("The page has been verified successfully!")->success();
+        flash("The Site has been verified successfully!")->success();
         return redirect(route('urls.show', $url_id));
     }
 }
