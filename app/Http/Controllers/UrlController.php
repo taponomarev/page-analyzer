@@ -17,7 +17,15 @@ class UrlController extends Controller
      */
     public function index()
     {
-        $urls = DB::table('urls')->paginate(15);
+        $urls = DB::table('urls')
+            ->leftJoin('url_checks', function ($join) {
+                $join->on('urls.id', '=', 'url_checks.url_id')
+                    ->whereRaw('url_checks.id
+                        IN (select MAX(a2.id) from url_checks as a2
+                        join urls as u2 on u2.id = a2.url_id group by u2.id)');
+            })
+            ->select('urls.id', 'urls.name', 'url_checks.status_code', 'url_checks.updated_at')
+            ->paginate(15);
         return view('urls.index', ['urls' => $urls]);
     }
 
@@ -53,11 +61,11 @@ class UrlController extends Controller
             return \redirect('/');
         }
 
-        $todayCarbonDate = Carbon::today();
+        $todayCarbonDate = now();
         DB::table('urls')->insert([
             'name' => $normalizeUrl,
-            'created_at' => $todayCarbonDate->toDateString(),
-            'updated_at' => $todayCarbonDate->toDateString()
+            'created_at' => $todayCarbonDate,
+            'updated_at' => $todayCarbonDate
         ]);
 
         flash("Url '{$normalizeUrl}' added successfully!")->success();

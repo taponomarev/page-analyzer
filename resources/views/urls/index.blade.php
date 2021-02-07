@@ -8,8 +8,8 @@
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">Name</th>
-                    <th scope="col">Created at</th>
-                    <th scope="col">Updated at</th>
+                    <th scope="col">Status code</th>
+                    <th scope="col">Last check</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -19,11 +19,11 @@
                             <td>
                                 <a href="{{ route('urls.show', $url->id) }}">{{ $url->name }}</a>
                             </td>
-                            <td>{{ $url->created_at }}</td>
-                            <td>{{ $url->updated_at }}</td>
+                            <td>{{ $url->status_code }}</td>
+                            <td>{{ \Carbon\Carbon::parse($url->updated_at)->diffForHumans() }}</td>
                         </tr>
                     @empty
-                        Urls not added
+                        Sites not added
                     @endforelse
                 </tbody>
             </table>

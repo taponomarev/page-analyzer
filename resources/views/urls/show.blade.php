@@ -16,8 +16,8 @@
                 <tr>
                     <th scope="row">{{ $url->id }}</th>
                     <td>{{ $url->name }}</td>
-                    <td>{{ $url->created_at }}</td>
-                    <td>{{ $url->updated_at }}</td>
+                    <td>{{ \Carbon\Carbon::parse($url->created_at)->diffForHumans() }}</td>
+                    <td>{{ \Carbon\Carbon::parse($url->updated_at)->diffForHumans() }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -50,8 +50,8 @@
                         <td>{{ $urlCheck->h1 }}</td>
                         <td>{{ $urlCheck->description }}</td>
                         <td>{{ $urlCheck->keywords }}</td>
-                        <td>{{ $urlCheck->created_at }}</td>
-                        <td>{{ $urlCheck->updated_at }}</td>
+                        <td>{{ \Carbon\Carbon::parse($urlCheck->created_at)->diffForHumans() }}</td>
+                        <td>{{ \Carbon\Carbon::parse($urlCheck->updated_at)->diffForHumans() }}</td>
                     </tr>
                 @empty
                 @endforelse

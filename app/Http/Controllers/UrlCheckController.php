@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class UrlCheckController extends Controller
 {
@@ -13,11 +13,15 @@ class UrlCheckController extends Controller
      */
     public function store(string $url_id)
     {
+        $site = DB::table('urls')->find($url_id);
+        $response = Http::get($site->name);
+        $nowDate = now();
+
         DB::table('url_checks')->insert([
             'url_id' => $url_id,
-            'status_code' => 200,
-            'created_at' => now(),
-            'updated_at' => now()
+            'status_code' => $response->status(),
+            'created_at' => $nowDate,
+            'updated_at' => $nowDate
         ]);
 
         flash("The page has been verified successfully!")->success();
