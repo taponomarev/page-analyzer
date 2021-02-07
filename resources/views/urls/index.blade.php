@@ -13,21 +13,21 @@
                 </tr>
                 </thead>
                 <tbody>
-                    @forelse($sites as $idx => $site)
+                    @forelse($urls as $idx => $url)
                         <tr>
                             <th scope="row">{{ $idx + 1 }}</th>
                             <td>
-                                <a href="{{ route('urls.show', $site->id) }}">{{ $site->name }}</a>
+                                <a href="{{ route('urls.show', $url->id) }}">{{ $url->name }}</a>
                             </td>
-                            <td>{{ $site->created_at }}</td>
-                            <td>{{ $site->updated_at }}</td>
+                            <td>{{ $url->created_at }}</td>
+                            <td>{{ $url->updated_at }}</td>
                         </tr>
                     @empty
-                        Websites not added
+                        Urls not added
                     @endforelse
                 </tbody>
             </table>
-            {{ $sites->links() }}
+            {{ $urls->links() }}
         </div>
     </div>
 @endsection

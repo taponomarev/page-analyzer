@@ -17,18 +17,19 @@ class UrlController extends Controller
      */
     public function index()
     {
-        $sites = DB::table('urls')->paginate(15);
-        return view('urls.index', ['sites' => $sites]);
+        $urls = DB::table('urls')->paginate(15);
+        return view('urls.index', ['urls' => $urls]);
     }
 
     /**
-     * @param string $url_id
+     * @param ?string $id
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
-    public function show(string $url_id)
+    public function show(?string $id)
     {
-        $site = DB::table('urls')->where('id', $url_id)->first();
-        return view('urls.show', ['site' => $site]);
+        $url = DB::table('urls')->where('id', $id)->first();
+        $urlChecks = DB::table('url_checks')->where('url_id', $id)->get();
+        return view('urls.show', ['url' => $url, 'urlChecks' => $urlChecks]);
     }
 
     /**
@@ -59,7 +60,7 @@ class UrlController extends Controller
             'updated_at' => $todayCarbonDate->toDateString()
         ]);
 
-        flash("Site '{$normalizeUrl}' added successfully!")->success();
+        flash("Url '{$normalizeUrl}' added successfully!")->success();
         return redirect(route('urls'));
     }
 }
