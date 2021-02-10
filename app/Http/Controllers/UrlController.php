@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
+use DiDom\Document;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Http;
 
 class UrlController extends Controller
 {
@@ -17,26 +15,25 @@ class UrlController extends Controller
      */
     public function index()
     {
-        $urls = DB::table('urls')
-            ->leftJoin('url_checks', function ($join) {
-                $join->on('urls.id', '=', 'url_checks.url_id')
-                    ->whereRaw('url_checks.id
-                        IN (select MAX(a2.id) from url_checks as a2
-                        join urls as u2 on u2.id = a2.url_id group by u2.id)');
-            })
-            ->select('urls.id', 'urls.name', 'url_checks.status_code', 'url_checks.updated_at')
+        $subQuery = 'SELECT url_id, status_code, updated_at, MAX(id) FROM url_checks GROUP BY url_id';
+        $urls = DB::table('urls', 'u')
+            ->leftJoinSub($subQuery, 'ch1', 'u.id', '=', 'ch1.url_id')
+            ->latest()
             ->paginate(15);
         return view('urls.index', ['urls' => $urls]);
     }
 
     /**
-     * @param ?string $id
+     * @param string $id
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
-    public function show(?string $id)
+    public function show(string $id)
     {
-        $url = DB::table('urls')->where('id', $id)->first();
-        $urlChecks = DB::table('url_checks')->where('url_id', $id)->get();
+        $url = DB::table('urls')->find($id);
+        $urlChecks = DB::table('url_checks')
+            ->where('url_id', $id)
+            ->get()
+            ->reverse();
         return view('urls.show', ['url' => $url, 'urlChecks' => $urlChecks]);
     }
 
@@ -70,5 +67,66 @@ class UrlController extends Controller
 
         flash("Url '{$normalizeUrl}' added successfully!")->success();
         return redirect(route('urls'));
+    }
+
+    /**
+     * @param string $url_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \DiDom\Exceptions\InvalidSelectorException
+     */
+    public function storeCheck(string $url_id)
+    {
+        $site = DB::table('urls')->find($url_id);
+        $response = Http::get($site->name);
+        $nowDate = now();
+
+        [$h1, $description, $keywords] = $this->getParsedData($response->body());
+
+        DB::table('url_checks')->insert([
+            'url_id' => $url_id,
+            'status_code' => $response->status(),
+            'h1' => $h1,
+            'description' => $description,
+            'keywords' => $keywords,
+            'created_at' => $nowDate,
+            'updated_at' => $nowDate
+        ]);
+
+        flash("The Site has been verified successfully!")->success();
+        return redirect(route('urls.show', $url_id));
+    }
+
+    /**
+     * @param string $html
+     * @return array|\Illuminate\Contracts\Foundation\Application|RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \DiDom\Exceptions\InvalidSelectorException
+     */
+    public function getParsedData(string $html)
+    {
+        $document = new Document();
+        try {
+            $document->loadHtml($html);
+
+            $h1 = optional($document->first('h1'), function ($node) {
+                return $node->text();
+            });
+
+            $description = optional($document->first('meta[name="description]'), function ($node) {
+                return $node->getAttribute('content');
+            });
+
+            $keywords = optional($document->first('meta[name="keywords]'), function ($node) {
+                return $node->getAttribute('content');
+            });
+
+            return [
+                $h1,
+                $description,
+                $keywords
+            ];
+        } catch (\Exception $exception) {
+            flash("The site not available")->success();
+            return redirect(back());
+        }
     }
 }

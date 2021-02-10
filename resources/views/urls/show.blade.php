@@ -30,7 +30,7 @@
                 @csrf
                 <input type="submit" class="btn btn-primary" value="Run check">
             </form>
-            <table class="table">
+            <table class="table table-bordered table-hover text-nowrap">
                 <thead>
                 <tr>
                     <th scope="col">ID</th>
@@ -38,7 +38,6 @@
                     <th scope="col">H1</th>
                     <th scope="col">Description</th>
                     <th scope="col">Keywords</th>
-                    <th scope="col">Created at</th>
                     <th scope="col">Updated at</th>
                 </tr>
                 </thead>
@@ -47,10 +46,9 @@
                     <tr>
                         <th scope="row">{{ $urlCheck->id }}</th>
                         <td>{{ $urlCheck->status_code }}</td>
-                        <td>{{ $urlCheck->h1 }}</td>
-                        <td>{{ $urlCheck->description }}</td>
-                        <td>{{ $urlCheck->keywords }}</td>
-                        <td>{{ \Carbon\Carbon::parse($urlCheck->created_at)->diffForHumans() }}</td>
+                        <td>{{ \Illuminate\Support\Str::limit($urlCheck->h1, 10, '...') }}</td>
+                        <td>{{ \Illuminate\Support\Str::limit($urlCheck->description, 20, '...') }}</td>
+                        <td>{{ \Illuminate\Support\Str::limit($urlCheck->keywords, 10, '...') }}</td>
                         <td>{{ \Carbon\Carbon::parse($urlCheck->updated_at)->diffForHumans() }}</td>
                     </tr>
                 @empty

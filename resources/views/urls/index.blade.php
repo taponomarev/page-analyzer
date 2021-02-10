@@ -15,7 +15,7 @@
                 <tbody>
                     @forelse($urls as $idx => $url)
                         <tr>
-                            <th scope="row">{{ $idx + 1 }}</th>
+                            <th scope="row">{{ $url->id }}</th>
                             <td>
                                 <a href="{{ route('urls.show', $url->id) }}">{{ $url->name }}</a>
                             </td>
