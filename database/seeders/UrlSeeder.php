@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -21,8 +22,8 @@ class UrlSeeder extends Seeder
         foreach ($this->URLS as $url) {
             DB::table('urls')->insert([
                 'name' => $url,
-                'created_at' => now(),
-                'updated_at' => now()
+                'created_at' => Carbon::parse(Carbon::now()),
+                'updated_at' => Carbon::parse(Carbon::now())
             ]);
         }
     }

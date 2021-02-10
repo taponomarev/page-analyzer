@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use DiDom\Document;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -58,11 +59,10 @@ class UrlController extends Controller
             return \redirect('/');
         }
 
-        $todayCarbonDate = now();
         DB::table('urls')->insert([
             'name' => $normalizeUrl,
-            'created_at' => $todayCarbonDate,
-            'updated_at' => $todayCarbonDate
+            'created_at' => Carbon::parse(Carbon::now()),
+            'updated_at' => Carbon::parse(Carbon::now())
         ]);
 
         flash("Url '{$normalizeUrl}' added successfully!")->success();
@@ -78,7 +78,6 @@ class UrlController extends Controller
     {
         $site = DB::table('urls')->find($url_id);
         $response = Http::get($site->name);
-        $nowDate = now();
 
         [$h1, $description, $keywords] = $this->getParsedData($response->body());
 
@@ -88,8 +87,8 @@ class UrlController extends Controller
             'h1' => $h1,
             'description' => $description,
             'keywords' => $keywords,
-            'created_at' => $nowDate,
-            'updated_at' => $nowDate
+            'created_at' => Carbon::parse(Carbon::now()),
+            'updated_at' => Carbon::parse(Carbon::now())
         ]);
 
         flash("The Site has been verified successfully!")->success();
