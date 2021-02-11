@@ -9,7 +9,7 @@
                 <div class="col-md">
                     <input
                         type="text"
-                        name="urls[name]"
+                        name="url[name]"
                         class="form-control @error('urls.name') is-invalid @enderror"
                         placeholder="https://google.com"
                     >

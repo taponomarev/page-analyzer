@@ -40,14 +40,14 @@ class UrlControllerTest extends TestCase
     {
         $url = 'https://hexlet.io';
         $requestData = [
-            'urls' => [
+            'url' => [
                 'name' => $url
             ]
         ];
 
         $response = $this->post('/urls', $requestData);
         $response->assertSessionHasNoErrors();
-        $response->assertRedirect(route('urls'));
+        $response->assertRedirect('/urls');
         $this->assertDatabaseHas('urls', ['name' => $url]);
     }
 
@@ -55,13 +55,13 @@ class UrlControllerTest extends TestCase
     {
         $url = '';
         $requestData = [
-            'urls' => [
+            'url' => [
                 'name' => $url
             ]
         ];
 
         $response = $this->post('/urls', $requestData);
-        $response->assertSessionHasErrorsIn('The urls.name field is required.');
+        $response->assertSessionHasErrorsIn('The url.name field is required.');
         $response->assertRedirect('/');
         $this->assertDatabaseMissing('urls', ['name' => $url]);
     }

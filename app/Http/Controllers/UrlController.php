@@ -45,11 +45,11 @@ class UrlController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'urls.name' => 'required|active_url',
+            'url.name' => 'required|active_url',
         ]);
 
         /** @var string[] */
-        $urlInfo = parse_url($request->get('urls')['name']);
+        $urlInfo = parse_url($request->get('url')['name']);
         $normalizeUrl = "{$urlInfo['scheme']}://{$urlInfo['host']}";
 
         $urlData = DB::table('urls')->where('name', $normalizeUrl)->first();
