@@ -55,7 +55,7 @@ class UrlController extends Controller
 
         $urlData = DB::table('urls')->where('name', $normalizeUrl)->first();
 
-        if (!$urlData) {
+        if (!is_null($urlData)) {
             flash('Site already exists!')->error();
             return redirect('/');
         }
