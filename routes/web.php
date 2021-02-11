@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+/* @phpstan-ignore-next-line */
 Route::get('/', function () {
-    /* @phpstan-ignore-next-line */
     return view('welcome');
 });
 
