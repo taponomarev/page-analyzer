@@ -56,7 +56,7 @@ class UrlController extends Controller
 
         if (!empty($urlData)) {
             flash('Site already exists!')->error();
-            return redirect('/', 202);
+            return redirect('/');
         }
 
         DB::table('urls')->insert([
@@ -125,7 +125,7 @@ class UrlController extends Controller
             ];
         } catch (\Exception $exception) {
             flash("The site not available")->success();
-            return redirect(back(), '423');
+            return redirect(back());
         }
     }
 }

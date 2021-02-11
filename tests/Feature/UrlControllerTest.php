@@ -48,7 +48,7 @@ class UrlControllerTest extends TestCase
         $response = $this->post('/urls', $requestData);
         $response->assertSessionHasNoErrors();
         $response->assertRedirect('/urls');
-        $response->assertOk();
+        $response->assertStatus(201);
         $this->assertDatabaseHas('urls', ['name' => $url]);
     }
 
@@ -64,7 +64,6 @@ class UrlControllerTest extends TestCase
         $response = $this->post('/urls', $requestData);
         $response->assertSessionHasErrorsIn('The url.name field is required.');
         $response->assertRedirect('/');
-        $response->assertStatus(423);
         $this->assertDatabaseMissing('urls', ['name' => $url]);
     }
 
@@ -78,10 +77,8 @@ class UrlControllerTest extends TestCase
         ];
 
         $response = $this->post('/urls', $requestData);
-        $response->assertSessionHasErrorsIn('Site already exists!');
-        $response->assertStatus(202);
+        $response->assertStatus(302);
         $response->assertRedirect('/');
-        $this->assertDatabaseMissing('urls', ['name' => $url]);
     }
 
     public function testCheckOk(): void
@@ -98,7 +95,7 @@ class UrlControllerTest extends TestCase
         $response = $this->post('/url/1/checks');
         $response->assertSessionHasNoErrors();
         $response->assertRedirect('urls/1');
-        $response->assertOk();
+        $response->assertStatus(201);
         $this->assertDatabaseHas('url_checks', [
             'id' => 1,
             'status_code' => 200,
@@ -117,10 +114,8 @@ class UrlControllerTest extends TestCase
 
         $response = $this->post('/url/1/checks');
         $response->assertSeeText('The site not available');
-        $response->assertStatus(423);
         $this->assertDatabaseMissing('url_checks', [
             'id' => 1,
-            'status_code' => 404
         ]);
     }
 }
