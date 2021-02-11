@@ -20,7 +20,7 @@
                                 <a href="{{ route('urls.show', $url->id) }}">{{ $url->name }}</a>
                             </td>
                             <td>{{ $url->status_code }}</td>
-                            <td>{{ \Carbon\Carbon::parse($url->updated_at)->diffForHumans() }}</td>
+                            <td>{{ \Carbon\Carbon::parse($url->created_at)->diffForHumans() }}</td>
                         </tr>
                     @empty
                         Sites not added

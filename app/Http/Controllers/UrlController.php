@@ -16,10 +16,10 @@ class UrlController extends Controller
      */
     public function index()
     {
-        $subQuery = 'SELECT url_id, status_code, updated_at, MAX(id) FROM url_checks GROUP BY url_id';
+        $subQuery = DB::table('url_checks')->selectRaw('url_id, status_code, created_at, MAX(id)')->groupBy('url_id');
         $urls = DB::table('urls', 'u')
             ->leftJoinSub($subQuery, 'ch1', 'u.id', '=', 'ch1.url_id')
-            ->latest()
+            ->select(['u.id', 'u.name', 'ch1.created_at', 'ch1.status_code'])
             ->paginate(15);
         return view('urls.index', ['urls' => $urls]);
     }
@@ -44,6 +44,7 @@ class UrlController extends Controller
      */
     public function store(Request $request)
     {
+        /* @phpstan-ignore-next-line */
         $request->validate([
             'url.name' => 'required|active_url',
         ]);
@@ -54,7 +55,7 @@ class UrlController extends Controller
 
         $urlData = DB::table('urls')->where('name', $normalizeUrl)->first();
 
-        if (!empty($urlData)) {
+        if (!$urlData) {
             flash('Site already exists!')->error();
             return redirect('/');
         }
