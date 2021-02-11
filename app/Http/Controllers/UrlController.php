@@ -56,7 +56,7 @@ class UrlController extends Controller
 
         if (!empty($urlData)) {
             flash('Site already exists!')->error();
-            return \redirect('/');
+            return back(404);
         }
 
         DB::table('urls')->insert([
@@ -66,7 +66,7 @@ class UrlController extends Controller
         ]);
 
         flash("Url '{$normalizeUrl}' added successfully!")->success();
-        return redirect(route('urls'));
+        return redirect(route('urls'), 201);
     }
 
     /**
@@ -92,7 +92,7 @@ class UrlController extends Controller
         ]);
 
         flash("The Site has been verified successfully!")->success();
-        return redirect(route('urls.show', $url_id));
+        return redirect(route('urls.show', $url_id), 201);
     }
 
     /**
