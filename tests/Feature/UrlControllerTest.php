@@ -67,6 +67,21 @@ class UrlControllerTest extends TestCase
         $this->assertDatabaseMissing('urls', ['name' => $url]);
     }
 
+    public function testStoreInvalidDomain(): void
+    {
+        $url = 'gfdfgdfd';
+        $requestData = [
+            'url' => [
+                'name' => $url
+            ]
+        ];
+
+        $response = $this->post('/urls', $requestData);
+        $response->assertSessionHasErrorsIn('The url.name field is required.');
+        $response->assertRedirect('/');
+        $this->assertDatabaseMissing('urls', ['name' => $url]);
+    }
+
     public function testAddExistingUrl(): void
     {
         $url = 'https://google.com';
@@ -92,7 +107,7 @@ class UrlControllerTest extends TestCase
             'google.com/*' => Http::response($fakeHtml, 200, ['Headers']),
         ]);
 
-        $response = $this->post('/url/1/checks');
+        $response = $this->post('/urls/1/checks');
         $response->assertSessionHasNoErrors();
         $response->assertRedirect('urls/1');
         $response->assertStatus(201);
@@ -112,7 +127,7 @@ class UrlControllerTest extends TestCase
             'google.com/*' => Http::response($fakeHtml, 200, ['Headers']),
         ]);
 
-        $response = $this->post('/url/1/checks');
+        $response = $this->post('/urls/1/checks');
         $response->assertSeeText('The site not available');
         $this->assertDatabaseMissing('url_checks', [
             'id' => 1,
