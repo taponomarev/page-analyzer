@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use DiDom\Document;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,10 +16,10 @@ class UrlController extends Controller
      */
     public function index()
     {
-        $subQuery = 'SELECT url_id, status_code, updated_at, MAX(id) FROM url_checks GROUP BY url_id';
+        $subQuery = DB::table('url_checks')->selectRaw('url_id, status_code, created_at, MAX(id)')->groupBy('url_id');
         $urls = DB::table('urls', 'u')
             ->leftJoinSub($subQuery, 'ch1', 'u.id', '=', 'ch1.url_id')
-            ->latest()
+            ->select(['u.id', 'u.name', 'ch1.created_at', 'ch1.status_code'])
             ->paginate(15);
         return view('urls.index', ['urls' => $urls]);
     }
@@ -43,30 +44,30 @@ class UrlController extends Controller
      */
     public function store(Request $request)
     {
+        /* @phpstan-ignore-next-line */
         $request->validate([
-            'urls.name' => 'required|active_url',
+            'url.name' => 'required|active_url',
         ]);
 
         /** @var string[] */
-        $urlInfo = parse_url($request->get('urls')['name']);
+        $urlInfo = parse_url($request->get('url')['name']);
         $normalizeUrl = "{$urlInfo['scheme']}://{$urlInfo['host']}";
 
         $urlData = DB::table('urls')->where('name', $normalizeUrl)->first();
 
-        if (!empty($urlData)) {
+        if (!is_null($urlData)) {
             flash('Site already exists!')->error();
-            return \redirect('/');
+            return redirect('/');
         }
 
-        $todayCarbonDate = now();
         DB::table('urls')->insert([
             'name' => $normalizeUrl,
-            'created_at' => $todayCarbonDate,
-            'updated_at' => $todayCarbonDate
+            'created_at' => Carbon::parse(Carbon::now()),
+            'updated_at' => Carbon::parse(Carbon::now())
         ]);
 
         flash("Url '{$normalizeUrl}' added successfully!")->success();
-        return redirect(route('urls'));
+        return redirect(route('urls'), 201);
     }
 
     /**
@@ -78,7 +79,6 @@ class UrlController extends Controller
     {
         $site = DB::table('urls')->find($url_id);
         $response = Http::get($site->name);
-        $nowDate = now();
 
         [$h1, $description, $keywords] = $this->getParsedData($response->body());
 
@@ -88,12 +88,12 @@ class UrlController extends Controller
             'h1' => $h1,
             'description' => $description,
             'keywords' => $keywords,
-            'created_at' => $nowDate,
-            'updated_at' => $nowDate
+            'created_at' => Carbon::parse(Carbon::now()),
+            'updated_at' => Carbon::parse(Carbon::now())
         ]);
 
         flash("The Site has been verified successfully!")->success();
-        return redirect(route('urls.show', $url_id));
+        return redirect(route('urls.show', $url_id), 201);
     }
 
     /**

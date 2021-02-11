@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+/* @phpstan-ignore-next-line */
 Route::get('/', function () {
     return view('welcome');
 });
@@ -21,4 +21,4 @@ Route::get('/', function () {
 Route::get('/urls', [UrlController::class, 'index'])->name('urls');
 Route::get('/urls/{url}', [UrlController::class, 'show'])->name('urls.show');
 Route::post('/urls', [UrlController::class, 'store'])->name('urls.store');
-Route::post('/url/{id}/checks', [UrlController::class, 'storeCheck'])->name('url.checks');
+Route::post('/urls/{id}/checks', [UrlController::class, 'storeCheck'])->name('url.checks');

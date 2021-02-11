@@ -40,14 +40,15 @@ class UrlControllerTest extends TestCase
     {
         $url = 'https://hexlet.io';
         $requestData = [
-            'urls' => [
+            'url' => [
                 'name' => $url
             ]
         ];
 
         $response = $this->post('/urls', $requestData);
         $response->assertSessionHasNoErrors();
-        $response->assertRedirect(route('urls'));
+        $response->assertRedirect('/urls');
+        $response->assertStatus(201);
         $this->assertDatabaseHas('urls', ['name' => $url]);
     }
 
@@ -55,15 +56,44 @@ class UrlControllerTest extends TestCase
     {
         $url = '';
         $requestData = [
-            'urls' => [
+            'url' => [
                 'name' => $url
             ]
         ];
 
         $response = $this->post('/urls', $requestData);
-        $response->assertSessionHasErrorsIn('The urls.name field is required.');
+        $response->assertSessionHasErrorsIn('The url.name field is required.');
         $response->assertRedirect('/');
         $this->assertDatabaseMissing('urls', ['name' => $url]);
+    }
+
+    public function testStoreInvalidDomain(): void
+    {
+        $url = 'gfdfgdfd';
+        $requestData = [
+            'url' => [
+                'name' => $url
+            ]
+        ];
+
+        $response = $this->post('/urls', $requestData);
+        $response->assertSessionHasErrorsIn('The url.name field is required.');
+        $response->assertRedirect('/');
+        $this->assertDatabaseMissing('urls', ['name' => $url]);
+    }
+
+    public function testAddExistingUrl(): void
+    {
+        $url = 'https://google.com';
+        $requestData = [
+            'url' => [
+                'name' => $url
+            ]
+        ];
+
+        $response = $this->post('/urls', $requestData);
+        $response->assertStatus(302);
+        $response->assertRedirect('/');
     }
 
     public function testCheckOk(): void
@@ -77,9 +107,10 @@ class UrlControllerTest extends TestCase
             'google.com/*' => Http::response($fakeHtml, 200, ['Headers']),
         ]);
 
-        $response = $this->post('/url/1/checks');
+        $response = $this->post('/urls/1/checks');
         $response->assertSessionHasNoErrors();
         $response->assertRedirect('urls/1');
+        $response->assertStatus(201);
         $this->assertDatabaseHas('url_checks', [
             'id' => 1,
             'status_code' => 200,
@@ -96,11 +127,10 @@ class UrlControllerTest extends TestCase
             'google.com/*' => Http::response($fakeHtml, 200, ['Headers']),
         ]);
 
-        $response = $this->post('/url/1/checks');
+        $response = $this->post('/urls/1/checks');
         $response->assertSeeText('The site not available');
         $this->assertDatabaseMissing('url_checks', [
             'id' => 1,
-            'status_code' => 404
         ]);
     }
 }
