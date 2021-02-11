@@ -13,13 +13,10 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get(/**
- * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
- */    '/',
-    function () {
-        return view('welcome');
-    }
-);
+Route::get('/', function () {
+    /* @phpstan-ignore-next-line */
+    return view('welcome');
+});
 
 Route::get('/urls', [UrlController::class, 'index'])->name('urls');
 Route::get('/urls/{url}', [UrlController::class, 'show'])->name('urls.show');
