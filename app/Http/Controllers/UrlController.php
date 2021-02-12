@@ -17,7 +17,7 @@ class UrlController extends Controller
     public function index()
     {
         $subQuery = DB::table('url_checks')
-            ->selectRaw( 'url_id, MAX(id) AS max_id')
+            ->selectRaw('url_id,MAX(id) AS max_id')
             ->groupBy('url_id');
         $urls = DB::table('urls', 'u')
             ->leftJoinSub($subQuery, 'ch1', 'ch1.url_id', '=', 'u.id')
