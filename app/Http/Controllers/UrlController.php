@@ -17,11 +17,12 @@ class UrlController extends Controller
     public function index()
     {
         $subQuery = DB::table('url_checks')
-            ->selectRaw('url_id, status_code, created_at, MAX(id)')
-            ->groupBy(['url_id', 'status_code', 'created_at']);
+            ->selectRaw( 'url_id, MAX(id) AS max_id')
+            ->groupBy('url_id');
         $urls = DB::table('urls', 'u')
-            ->leftJoinSub($subQuery, 'ch1', 'u.id', '=', 'ch1.url_id')
-            ->select(['u.id', 'u.name', 'ch1.created_at', 'ch1.status_code'])
+            ->leftJoinSub($subQuery, 'ch1', 'ch1.url_id', '=', 'u.id')
+            ->leftJoin('url_checks', 'url_checks.id', '=', 'ch1.max_id')
+            ->select('u.id', 'u.name', 'url_checks.status_code', 'url_checks.created_at')
             ->paginate(15);
         return view('urls.index', ['urls' => $urls]);
     }
