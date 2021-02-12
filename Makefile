@@ -25,7 +25,7 @@ test:
 	php artisan test
 
 deploy:
-	git push heroku master
+	git push origin main
 
 lint:
 	composer run-script phpcs
