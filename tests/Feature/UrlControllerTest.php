@@ -48,7 +48,6 @@ class UrlControllerTest extends TestCase
         $response = $this->post('/urls', $requestData);
         $response->assertSessionHasNoErrors();
         $response->assertRedirect('/urls');
-        $response->assertStatus(201);
         $this->assertDatabaseHas('urls', ['name' => $url]);
     }
 
@@ -92,7 +91,6 @@ class UrlControllerTest extends TestCase
         ];
 
         $response = $this->post('/urls', $requestData);
-        $response->assertStatus(302);
         $response->assertRedirect('/');
     }
 
@@ -110,7 +108,6 @@ class UrlControllerTest extends TestCase
         $response = $this->post('/urls/1/checks');
         $response->assertSessionHasNoErrors();
         $response->assertRedirect('urls/1');
-        $response->assertStatus(201);
         $this->assertDatabaseHas('url_checks', [
             'id' => 1,
             'status_code' => 200,
@@ -128,7 +125,7 @@ class UrlControllerTest extends TestCase
         ]);
 
         $response = $this->post('/urls/1/checks');
-        $response->assertSeeText('The site not available');
+        $response->assertRedirect('/urls/1');
         $this->assertDatabaseMissing('url_checks', [
             'id' => 1,
         ]);

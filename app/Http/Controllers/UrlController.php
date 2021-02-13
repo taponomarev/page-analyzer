@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use DiDom\Document;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
@@ -17,12 +18,17 @@ class UrlController extends Controller
     public function index()
     {
         $subQuery = DB::table('url_checks')
-            ->selectRaw('url_id,MAX(id) AS max_id')
+            ->selectRaw('url_id, MAX(id) AS max_id')
             ->groupBy('url_id');
         $urls = DB::table('urls', 'u')
             ->leftJoinSub($subQuery, 'ch1', 'ch1.url_id', '=', 'u.id')
             ->leftJoin('url_checks', 'url_checks.id', '=', 'ch1.max_id')
-            ->select('u.id', 'u.name', 'url_checks.status_code', 'url_checks.created_at')
+            ->select(
+                'u.id',
+                'u.name',
+                'url_checks.status_code AS last_check_status_code',
+                'url_checks.created_at AS last_checked_at'
+            )
             ->paginate(15);
         return view('urls.index', ['urls' => $urls]);
     }
@@ -65,62 +71,60 @@ class UrlController extends Controller
 
         DB::table('urls')->insert([
             'name' => $normalizeUrl,
-            'created_at' => Carbon::parse(Carbon::now()),
-            'updated_at' => Carbon::parse(Carbon::now())
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
         ]);
 
         flash("Url '{$normalizeUrl}' added successfully!")->success();
-        return redirect(route('urls'), 201);
+        return redirect(route('urls'));
     }
 
     /**
-     * @param string $url_id
+     * @param string $urlId
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      * @throws \DiDom\Exceptions\InvalidSelectorException
      */
-    public function storeCheck(string $url_id)
+    public function storeCheck(string $urlId)
     {
-        $site = DB::table('urls')->find($url_id);
+        $site = DB::table('urls')->find($urlId);
         $response = Http::get($site->name);
 
-        [$h1, $description, $keywords] = $this->getParsedData($response->body());
+        $parsedData = $this->getParsedData($response->body());
+
+        if (!$parsedData) {
+            flash("The site not available")->success();
+            return redirect(route('urls.show', $urlId));
+        }
+
+        [$h1, $description, $keywords] = $parsedData;
 
         DB::table('url_checks')->insert([
-            'url_id' => $url_id,
+            'url_id' => $urlId,
             'status_code' => $response->status(),
             'h1' => $h1,
             'description' => $description,
             'keywords' => $keywords,
-            'created_at' => Carbon::parse(Carbon::now()),
-            'updated_at' => Carbon::parse(Carbon::now())
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
         ]);
 
         flash("The Site has been verified successfully!")->success();
-        return redirect(route('urls.show', $url_id), 201);
+        return redirect(route('urls.show', $urlId));
     }
 
     /**
      * @param string $html
-     * @return array|\Illuminate\Contracts\Foundation\Application|RedirectResponse|\Illuminate\Routing\Redirector
-     * @throws \DiDom\Exceptions\InvalidSelectorException
+     * @return array|null
      */
-    public function getParsedData(string $html)
+    public function getParsedData(string $html): ?array
     {
         $document = new Document();
         try {
             $document->loadHtml($html);
 
-            $h1 = optional($document->first('h1'), function ($node) {
-                return $node->text();
-            });
-
-            $description = optional($document->first('meta[name="description]'), function ($node) {
-                return $node->getAttribute('content');
-            });
-
-            $keywords = optional($document->first('meta[name="keywords]'), function ($node) {
-                return $node->getAttribute('content');
-            });
+            $h1 = optional($document->first('h1'))->text();
+            $description = optional($document->first('meta[name="description]'))->getAttribute('content');
+            $keywords = optional($document->first('meta[name="keywords]'))->getAttribute('content');
 
             return [
                 $h1,
@@ -128,8 +132,7 @@ class UrlController extends Controller
                 $keywords
             ];
         } catch (\Exception $exception) {
-            flash("The site not available")->success();
-            return redirect(back());
+            return null;
         }
     }
 }
