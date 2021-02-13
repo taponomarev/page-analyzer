@@ -91,7 +91,7 @@ class UrlController extends Controller
 
         $parsedData = $this->getParsedData($response->body());
 
-        if (!$parsedData) {
+        if (is_null($parsedData)) {
             flash("The site not available")->success();
             return redirect(route('urls.show', $urlId));
         }
