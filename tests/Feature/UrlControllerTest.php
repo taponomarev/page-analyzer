@@ -125,6 +125,7 @@ class UrlControllerTest extends TestCase
         ]);
 
         $response = $this->post('/urls/1/checks');
+        dump($response->dump());
         $response->assertRedirect('/urls/1');
         $this->assertDatabaseMissing('url_checks', [
             'id' => 1,
