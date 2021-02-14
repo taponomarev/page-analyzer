@@ -118,6 +118,10 @@ class UrlController extends Controller
      */
     public function getParsedData(string $html): ?array
     {
+        if (empty($html)) {
+            return null;
+        }
+
         $document = new Document();
         try {
             $document->loadHtml($html);
