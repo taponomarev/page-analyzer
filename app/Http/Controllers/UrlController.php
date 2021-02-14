@@ -118,7 +118,7 @@ class UrlController extends Controller
      */
     public function getParsedData(string $html): ?array
     {
-        if (empty($html)) {
+        if ($html === '') {
             return null;
         }
 
