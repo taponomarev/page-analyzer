@@ -129,6 +129,7 @@ class UrlControllerTest extends TestCase
 
         $response = $this->post('/urls/1/checks');
         $response->assertSessionHas('flash_notification.0.level', 'danger');
+        dd($response->dump());
         $response->assertRedirect('/urls/1');
         $this->assertDatabaseMissing('url_checks', [
             'id' => 1,
