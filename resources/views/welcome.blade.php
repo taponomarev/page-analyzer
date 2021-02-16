@@ -13,7 +13,7 @@
                         class="form-control @error('urls.name') is-invalid @enderror"
                         placeholder="https://google.com"
                     >
-                    @error('urls.name')
+                    @error('url.name')
                     <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                 </div>

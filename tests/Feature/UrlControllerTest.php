@@ -47,6 +47,7 @@ class UrlControllerTest extends TestCase
 
         $response = $this->post('/urls', $requestData);
         $response->assertSessionHasNoErrors();
+        $response->assertSessionHas('flash_notification.0.level', 'success');
         $response->assertRedirect('/urls');
         $this->assertDatabaseHas('urls', ['name' => $url]);
     }
@@ -61,7 +62,7 @@ class UrlControllerTest extends TestCase
         ];
 
         $response = $this->post('/urls', $requestData);
-        $response->assertSessionHasErrorsIn('The url.name field is required.');
+        $response->assertSessionHas('flash_notification.0.level', 'danger');
         $response->assertRedirect('/');
         $this->assertDatabaseMissing('urls', ['name' => $url]);
     }
@@ -76,7 +77,7 @@ class UrlControllerTest extends TestCase
         ];
 
         $response = $this->post('/urls', $requestData);
-        $response->assertSessionHasErrorsIn('The url.name field is required.');
+        $response->assertSessionHas('flash_notification.0.level', 'danger');
         $response->assertRedirect('/');
         $this->assertDatabaseMissing('urls', ['name' => $url]);
     }
@@ -91,6 +92,7 @@ class UrlControllerTest extends TestCase
         ];
 
         $response = $this->post('/urls', $requestData);
+        $response->assertSessionHas('flash_notification.0.level', 'danger');
         $response->assertRedirect('/');
     }
 
@@ -107,6 +109,7 @@ class UrlControllerTest extends TestCase
 
         $response = $this->post('/urls/1/checks');
         $response->assertSessionHasNoErrors();
+        $response->assertSessionHas('flash_notification.0.level', 'success');
         $response->assertRedirect('urls/1');
         $this->assertDatabaseHas('url_checks', [
             'id' => 1,
@@ -125,6 +128,7 @@ class UrlControllerTest extends TestCase
         ]);
 
         $response = $this->post('/urls/1/checks');
+        $response->assertSessionHas('flash_notification.0.level', 'danger');
         $response->assertRedirect('/urls/1');
         $this->assertDatabaseMissing('url_checks', [
             'id' => 1,

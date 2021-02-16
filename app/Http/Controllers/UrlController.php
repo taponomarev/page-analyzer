@@ -6,9 +6,9 @@ use Carbon\Carbon;
 use DiDom\Document;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class UrlController extends Controller
 {
@@ -54,9 +54,14 @@ class UrlController extends Controller
     public function store(Request $request)
     {
         /* @phpstan-ignore-next-line */
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'url.name' => 'required|active_url',
         ]);
+
+        if ($validator->fails()) {
+            flash($validator->errors()->first())->error();
+            return back();
+        }
 
         /** @var string[] */
         $urlInfo = parse_url($request->get('url')['name']);
@@ -89,27 +94,25 @@ class UrlController extends Controller
         $site = DB::table('urls')->find($urlId);
         $response = Http::get($site->name);
 
-        $parsedData = $this->getParsedData($response->body());
+        try {
+            [$h1, $description, $keywords] = $this->getParsedData($response->body());
 
-        if (is_null($parsedData)) {
-            flash("The site not available")->success();
+            DB::table('url_checks')->insert([
+                'url_id' => $urlId,
+                'status_code' => $response->status(),
+                'h1' => $h1,
+                'description' => $description,
+                'keywords' => $keywords,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
+
+            flash("The Site has been verified successfully!")->success();
+            return redirect(route('urls.show', $urlId));
+        } catch (\Exception $exception) {
+            flash($exception->getMessage())->error();
             return redirect(route('urls.show', $urlId));
         }
-
-        [$h1, $description, $keywords] = $parsedData;
-
-        DB::table('url_checks')->insert([
-            'url_id' => $urlId,
-            'status_code' => $response->status(),
-            'h1' => $h1,
-            'description' => $description,
-            'keywords' => $keywords,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now()
-        ]);
-
-        flash("The Site has been verified successfully!")->success();
-        return redirect(route('urls.show', $urlId));
     }
 
     /**
@@ -118,25 +121,17 @@ class UrlController extends Controller
      */
     public function getParsedData(string $html): ?array
     {
-        if ($html === '') {
-            return null;
-        }
-
         $document = new Document();
-        try {
-            $document->loadHtml($html);
+        $document->loadHtml($html);
 
-            $h1 = optional($document->first('h1'))->text();
-            $description = optional($document->first('meta[name="description]'))->getAttribute('content');
-            $keywords = optional($document->first('meta[name="keywords]'))->getAttribute('content');
+        $h1 = optional($document->first('h1'))->text();
+        $description = optional($document->first('meta[name="description]'))->getAttribute('content');
+        $keywords = optional($document->first('meta[name="keywords]'))->getAttribute('content');
 
-            return [
-                $h1,
-                $description,
-                $keywords
-            ];
-        } catch (\Exception $exception) {
-            return null;
-        }
+        return [
+            $h1,
+            $description,
+            $keywords
+        ];
     }
 }
