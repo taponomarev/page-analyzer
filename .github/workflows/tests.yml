@@ -23,7 +23,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
             name: debug-tests
-            path: storage/tests.html
+            path: ${{ github.workspace }}
       - name: Download a debug-tests artifact
         if: ${{ always() }}
         uses: actions/download-artifact@v2
