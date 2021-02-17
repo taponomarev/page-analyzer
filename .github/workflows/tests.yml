@@ -17,6 +17,7 @@ jobs:
       - name: Install dependencies
         run: make setup
       - name: Run tests
+        if: ${{ always() }}
         run: make test
       - name: Debug tests
         uses: actions/upload-artifact@v2
