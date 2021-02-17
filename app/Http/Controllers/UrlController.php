@@ -111,7 +111,9 @@ class UrlController extends Controller
             flash("The Site has been verified successfully!")->success();
             return redirect(route('urls.show', $urlId));
         } catch (\Exception $exception) {
-            Log::debug('Store check exception', $exception);
+            Log::debug('Store check exception', [
+                'exception' => $exception,
+            ]);
             flash($exception->getMessage())->error();
             return redirect(route('urls.show', $urlId));
         }
