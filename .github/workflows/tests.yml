@@ -19,14 +19,13 @@ jobs:
       - name: Run tests
         run: make test
       - name: Upload artifact after tests
-        run: mkdir -p path/to/artifact
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-            name: debug-tests
-            path: path/to/artifact
+            name: Logs
+            path: ./storage/logs
       - name: Download artifact
         if: ${{ always() }}
         uses: actions/download-artifact@v2
         with:
-          name: debug-tests
+          name: Logs
