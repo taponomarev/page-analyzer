@@ -19,7 +19,7 @@ console:
 	php artisan tinker
 
 log:
-	tail storage/logs/laravel.log
+	tail -f storage/logs/laravel.log
 
 test:
 	php artisan test
