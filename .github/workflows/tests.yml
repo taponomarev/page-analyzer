@@ -18,3 +18,12 @@ jobs:
         run: make setup
       - name: Run tests
         run: make test
+      - name: Debug tests
+        uses: actions/upload-artifact@v2
+        with:
+            name: debug-tests
+            path: storage/tests.html
+      - name: Download a debug-tests artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: debug-tests

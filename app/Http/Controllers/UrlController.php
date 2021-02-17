@@ -93,7 +93,7 @@ class UrlController extends Controller
     public function storeCheck(string $urlId)
     {
         Log::debug('SESSION DRIVER');
-        Log::debug(json_encode(env('SESSION_DRIVER')));
+        Log::debug(env('SESSION_DRIVER'));
         $site = DB::table('urls')->find($urlId);
         Log::debug('site');
         Log::debug(json_encode($site));
