@@ -110,7 +110,7 @@ class UrlController extends Controller
 
             flash("The Site has been verified successfully!")->success();
             return redirect(route('urls.show', $urlId));
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             /* @phpstan-ignore-next-line */
             Log::debug('Store check exception', [
                 'exception' => $exception,
