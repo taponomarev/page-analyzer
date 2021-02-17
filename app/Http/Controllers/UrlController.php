@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class UrlController extends Controller
@@ -91,13 +92,26 @@ class UrlController extends Controller
      */
     public function storeCheck(string $urlId)
     {
+        Log::debug('SESSION DRIVER');
+        Log::debug(json_encode(env('SESSION_DRIVER')));
         $site = DB::table('urls')->find($urlId);
+        Log::debug('site');
+        Log::debug(json_encode($site));
         $response = Http::get($site->name);
+        Log::debug('response');
+        Log::debug(json_encode($response));
 
         try {
             [$h1, $description, $keywords] = $this->getParsedData($response->body());
+            Log::debug('getParsedData');
+            Log::debug('h1');
+            Log::debug(json_encode($h1));
+            Log::debug('description');
+            Log::debug(json_encode($description));
+            Log::debug('keywords');
+            Log::debug(json_encode($keywords));
 
-            DB::table('url_checks')->insert([
+            $data = DB::table('url_checks')->insert([
                 'url_id' => $urlId,
                 'status_code' => $response->status(),
                 'h1' => $h1,
@@ -107,10 +121,17 @@ class UrlController extends Controller
                 'updated_at' => Carbon::now()
             ]);
 
+            Log::debug('db result');
+            Log::debug(json_encode($data));
+
             flash("The Site has been verified successfully!")->success();
+            Log::debug('session success');
+            Log::debug(json_encode(session()->all()));
             return redirect(route('urls.show', $urlId));
         } catch (\Exception $exception) {
             flash($exception->getMessage())->error();
+            Log::debug('session error');
+            Log::debug(json_encode(session()->all()));
             return redirect(route('urls.show', $urlId));
         }
     }
