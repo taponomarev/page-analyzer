@@ -18,14 +18,16 @@ jobs:
         run: make setup
       - name: Run tests
         run: make test
-      - name: Debug tests
+      - name: Run log
+        run: make log > debug.txt
+      - name: Upload Artifact
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-            name: debug-tests
-            path: ${{ github.workspace }}
-      - name: Download a debug-tests artifact
+            name: logger
+            path: debug.txt
+      - name: Download a logger artifact
         if: ${{ always() }}
         uses: actions/download-artifact@v2
         with:
-          name: debug-tests
+          name: logger
